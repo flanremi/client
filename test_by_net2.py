@@ -399,13 +399,20 @@ class CameraManager:
                                           data={"camera": self.bind_camera}).text)
                         boxes = []
                         print(results)
+                        p = 0
                         for result in results:
-                            boxes.append(Box(int(result[0] * self.width_rate), int(result[1] * self.height_rate),
-                                             int(result[2] * self.width_rate), int(result[3] * self.height_rate),
-                                             "#ff0000"))
+                            if int(result[0]) < 200 or int(result[1]) < 100 or result[2] > 1600 or result[3] > 1000:
+                                continue
+                            if p <= result[4]:
+                                boxes.append(Box(int(result[0] * self.width_rate), int(result[1] * self.height_rate),
+                                                 int(result[2] * self.width_rate), int(result[3] * self.height_rate),
+                                                 "#ff0000"))
+                                p = result[4]
                         if len(boxes) > 0:
-                            box_manager.trace(boxes[0], self.yolo_stop)
+                            box_manager.trace(boxes[len(boxes) - 1], self.yolo_stop)
+                            #
                             # box_manager.refresh(boxes, self.yolo_stop)
+                            continue
                             self.Objdll.NET_DVR_PTZControl(self.lRealPlayHandle, PAN_RIGHT, 1)
                             self.Objdll.NET_DVR_PTZControl(self.lRealPlayHandle, PAN_LEFT, 1)
                             # 画面中出现目标就应该停止转动

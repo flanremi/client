@@ -17,10 +17,10 @@ from concurrent.futures import ThreadPoolExecutor
 
 theard_pool = ThreadPoolExecutor(max_workers=4)
 window = None
-url = "http://192.168.50.205:5000/"
+# url = "http://192.168.50.205:5000/"
 
 
-# url = "http://10.10.3.2:5000/"
+url = "http://10.10.4.6:5000/"
 
 
 class QTypeSignal(QObject):
@@ -402,3 +402,4 @@ if __name__ == '__main__':
     window.show()
     refreshCacheInfo()
     sys.exit(app.exec_())
+# countMove()

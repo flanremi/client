@@ -10,7 +10,7 @@ from time import sleep
 from concurrent.futures import ThreadPoolExecutor
 
 # 登录的设备信息
-DEV_IP = create_string_buffer(b'192.168.50.250')
+DEV_IP = create_string_buffer(b'10.10.3.4')
 DEV_PORT = 8000
 DEV_USER_NAME = create_string_buffer(b'admin')
 DEV_PASSWORD = create_string_buffer(b'osm123onap')
@@ -188,19 +188,24 @@ def LoginDev(Objdll):
     return (lUserId, device_info)
 
 
+iii = 0
+
+
 def DecCBFun(nPort, pBuf, nSize, pFrameInfo, nUser, nReserved2):
+    global iii
     # 解码回调函数
     if pFrameInfo.contents.nType == 3:
         # 解码返回视频YUV数据，将YUV数据转成jpg图片保存到本地
         # 如果有耗时处理，需要将解码数据拷贝到回调函数外面的其他线程里面处理，避免阻塞回调导致解码丢帧
         # sFileName = ('../../pic/test_stamp[%d].jpg' % pFrameInfo.contents.nStamp)
-        sFileName = 'yolov5/data/images/tmp.jpg'
+        sFileName = '../../pic/' + str(iii) + ".jpg"
+        iii += 1
         nWidth = pFrameInfo.contents.nWidth
         nHeight = pFrameInfo.contents.nHeight
         nType = pFrameInfo.contents.nType
         dwFrameNum = pFrameInfo.contents.dwFrameNum
         nStamp = pFrameInfo.contents.nStamp
-        # print(nWidth, nHeight, nType, dwFrameNum, nStamp, sFileName)
+        print(nWidth, nHeight, nType, dwFrameNum, nStamp, sFileName)
         lRet = Playctrldll.PlayM4_ConvertToJpegFile(pBuf, nSize, nWidth, nHeight, nType, c_char_p(sFileName.encode()))
 
         if lRet == 0:
@@ -232,8 +237,6 @@ def RealDataCallBack_V30(lPlayHandle, dwDataType, pBuffer, dwBufSize, pUser):
         Playctrldll.PlayM4_InputData(PlayCtrl_Port, pBuffer, dwBufSize)
     else:
         print(u'其他数据,长度:', dwBufSize)
-
-
 
 
 def OpenPreview(Objdll, lUserId, callbackFun):
@@ -367,7 +370,6 @@ if __name__ == '__main__':
         import yolov5.detect
         opt = yolov5.detect.parse_opt()
 
-
         def run():
             global is_turn
             sleep(5)
@@ -418,13 +420,13 @@ if __name__ == '__main__':
                             Objdll.NET_DVR_PTZControl(lRealPlayHandle, PAN_LEFT, 1)
                             is_turn = -1
                             pass
-                except:
-                    pass
+                except EXCEPTION as e:
+                    print(e)
 
         theard_pool.submit(run)
 
 
-    yolo()
+    # yolo()
 
     # 获取系统平台
     GetPlatform()
@@ -445,7 +447,6 @@ if __name__ == '__main__':
     Objdll.NET_DVR_Init()
     # 启用SDK写日志
     Objdll.NET_DVR_SetLogToFile(3, bytes('./SdkLog_Python/', encoding="utf-8"), False)
-
 
     # 获取一个播放句柄
     if not Playctrldll.PlayM4_GetPort(byref(PlayCtrl_Port)):

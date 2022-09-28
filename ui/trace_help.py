@@ -41,18 +41,25 @@ class TraceManager:
         def start_screen(i):
             subprocess.check_output(
                 "python ../test_by_net2.py " +
-                "192.168.50.25" + str(i) + " " + str(1) + " -1 True c" + str(i),
+                "192.168.50.25" + str(i) + " " + str(2) + " -1 True c" + str(i),
                 shell=True).decode("UTF-8")
         i = 0
 
         self.tp.submit(start_screen, 0)
-        # requests.post("http://192.168.50.205:5000/count_move_2", data={"pos": "0"})
+        requests.post("http://192.168.50.205:5000/count_move_2", data={"pos": "0"})
+        time.sleep(5)
         while True:
-            time.sleep(1)
+            time.sleep(1.5)
             res = requests.post("http://192.168.50.205:5000/yolo_get", data={"camera": "c" + str(0)})
-            result = json.loads(res.text)
+            results = json.loads(res.text)
             i += 1
-            if len(result) > 0 and 150 <= int(result[0][0]) <= 1500:
+            p = 0
+            for result in results:
+                if int(result[0]) < 200 or int(result[1]) < 100:
+                    continue
+                if p <= result[4]:
+                    p = result[4]
+            if len(results) > 0 and 150 <= int(results[len(results) - 1][0]) <= 1500:
                 break
             subprocess.check_output(
                 "python ../t_CameraManager.py " + "192.168.50.25" + str(0) + " " + str(i),
@@ -61,29 +68,45 @@ class TraceManager:
         subprocess.check_output(
             "python ../t_CameraManager.py " + "192.168.50.25" + str(0) + " " + str((i + 5) % 21),
             shell=True).decode("UTF-8")
+        requests.post("http://192.168.50.205:5000/count_move_2", data={"pos": "1"})
         time.sleep(3)
 
         self.tp.submit(start_screen, 1)
+        requests.post("http://192.168.50.205:5000/count_move_del_2", data={"pos": "0"})
         subprocess.check_output(
             "python ../t_CameraManager.py " + "192.168.50.25" + str(1) + " " + str(10),
             shell=True).decode("UTF-8")
-        time.sleep(14)
+        time.sleep(20)
 
         subprocess.check_output(
             "python ../t_CameraManager.py " + "192.168.50.25" + str(1) + " " + str(15),
             shell=True).decode("UTF-8")
+        requests.post("http://192.168.50.205:5000/count_move_2", data={"pos": "2"})
         time.sleep(3)
 
         self.tp.submit(start_screen, 2)
+        requests.post("http://192.168.50.205:5000/count_move_del_2", data={"pos": "1"})
         subprocess.check_output(
             "python ../t_CameraManager.py " + "192.168.50.25" + str(2) + " " + str(8),
             shell=True).decode("UTF-8")
-        time.sleep(14)
+        time.sleep(20)
 
         subprocess.check_output(
             "python ../t_CameraManager.py " + "192.168.50.25" + str(2) + " " + str(14),
             shell=True).decode("UTF-8")
         time.sleep(3)
+        requests.post("http://192.168.50.205:5000/count_move_del_2", data={"pos": "2"})
+
+        time.sleep(5)
+        subprocess.check_output(
+            "python ../t_CameraManager.py " + "192.168.50.25" + str(0) + " " + str(0),
+            shell=True).decode("UTF-8")
+        subprocess.check_output(
+            "python ../t_CameraManager.py " + "192.168.50.25" + str(1) + " " + str(0),
+            shell=True).decode("UTF-8")
+        subprocess.check_output(
+            "python ../t_CameraManager.py " + "192.168.50.25" + str(2) + " " + str(0),
+            shell=True).decode("UTF-8")
 
 # subprocess.check_output(
 #     "python ../t_CameraManager.py " + "\"192.168.50.25" + str(0) + "\" " + "\"" + "stop" + "\"",

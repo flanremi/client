@@ -159,7 +159,12 @@ def run(
                 #     s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
 
                 # Write results
+                _xy = None
+                max_conf = 0
                 for *xyxy, conf, cls in reversed(det):
+                    if conf.item() >= max_conf:
+                        max_conf = conf.item()
+                        _xy = xyxy
                     # if save_txt:  # Write to file
                     #     xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
                     #     line = (cls, *xywh, conf) if save_conf else (cls, *xywh)  # label format
@@ -172,8 +177,8 @@ def run(
                     #     annotator.box_label(xyxy, label, color=colors(c, True))
                     # if save_crop:
                     #     save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
-                    if c == 39:
-                        obj_list.append([point.item() for point in xyxy])
+                    # if c == 39:
+                obj_list.append([point.item() for point in _xy])
             result_list.append(obj_list)
     return result_list
     #     # Stream results
@@ -220,7 +225,7 @@ def run(
 
 def parse_opt():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'yolov5s.pt', help='model path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default=ROOT / 'carr_best.pt', help='model path(s)')
     parser.add_argument('--source', type=str, default=ROOT / 'data/images', help='file/dir/URL/glob, 0 for webcam')
     parser.add_argument('--data', type=str, default=ROOT / 'data/coco128.yaml', help='(optional) dataset.yaml path')
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[640], help='inference size h,w')
