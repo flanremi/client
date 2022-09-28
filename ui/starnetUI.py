@@ -26,7 +26,7 @@ url = "http://10.10.4.6:5000/"
 class QTypeSignal(QObject):
     sendMsg = pyqtSignal(str)
     sendMsg2 = pyqtSignal(str)
-    sendMsg3 = pyqtSignal(str)
+    sendMsg3 = pyqtSignal(str) #1
 
     def __init__(self, ):
         super(QTypeSignal, self).__init__()
